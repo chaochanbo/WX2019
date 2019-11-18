@@ -23,7 +23,7 @@ class Comment extends Model
     }
 
     public static function getReply($id){
-        $data = Db::table('comment')->where('pid',$id)->select(); 
+        $data = Db::table('comment')->where('to_id',$id)->select(); 
         return $data;
     }
 

@@ -38,7 +38,6 @@ class Comment extends Controller
         ];
         
         parent::__construct($request);
-        // header('Access-Control-Allow-Origin:*'); 
 
     }
 
@@ -52,10 +51,9 @@ class Comment extends Controller
         $user_id=input('openid');
         $page=input('page');
         $arr['user_id']=$user_id;
-        // $rep = $this->getRep(77);
-        // var_dump($rep); exit;
+        
         $list = CommentModel::getCom($page);
-        // var_dump($list);exit;
+        
         foreach ($list as $key => &$value){
             // $value['DATE'] = date('Y-m-d H:i:s');
             $to_id=$value['to_id'];
@@ -72,12 +70,7 @@ class Comment extends Controller
             }
             
                 $rep = $this->getRep($id);         
-                $value['reply'] = $rep;
-            if(!$to_id==null){
-
-            }
-            
-            
+                $value['reply'] = $rep;         
         }
         
         $data['list'] = $list;
@@ -131,7 +124,7 @@ class Comment extends Controller
         $data['to_id'] = $to_id;
         $data['code'] = $code;
         if($code=='1'){
-            $user = $this->getUser($to_id);
+            $user = $this->getUser($pid);
             $data['touser'] = $user;
         }
         $result=CommentModel::add($data);
@@ -220,8 +213,7 @@ class Comment extends Controller
         session_start();
        
         if(session('openid')){
-            // $access_token = $_SESSION['access_token'];
-            // $openId = $_SESSION['openid'];
+            
             $access_token = session('access_token');
             $openId = session('openid');
         }else{
@@ -229,8 +221,7 @@ class Comment extends Controller
             $url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=".$this->appid."&secret=".$this->appsecret."&code=".$code."&grant_type=authorization_code";
             $res = $this->http_curl($url,'get');
             
-            // $_SESSION['openid'] = $res['openid'];
-            // $_SESSION['access_token'] = $res['access_token'];
+            
             $access_token = $res['access_token'];
             $openId = $res['openid'];
             session('openid',$openId);
@@ -277,66 +268,16 @@ class Comment extends Controller
         // $appid = '---------';
         // $appsecret = '-------------------';
         // 获取token
-        // $token_data = file_get_contents(__DIR__.'/token.txt');
-        
-        
-        // $time = 7200;
-        // if (!empty($token_data)) {
-        //     $token_data = json_decode($token_data, true);
-        //     $time  = time() - $token_data['time'];
-        //     // $time  = time() - session('time');
-        // }
-        // // $token = $token_data['token'];
-        // if ($time > 3600) {
             $token_url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={$this->appid}&secret={$this->appsecret}";
             $token_res = $this->https_request($token_url);
             $token_res = json_decode($token_res, true);
             $token = $token_res['access_token'];
-            // $data = array(
-            //     'time' =>time(),
-            //     'token' =>$token
-            // );
-            // $time=time();
-            // session('token', $token);
-            // session('time', $time);
-
-            
-            // file_put_contents(__DIR__.'/token.txt', json_encode($data));
-            // if ($res) {
-            //     echo '更新 token 成功';
-            // }
-        // }else{
-        //     $token = $token_data['token'];
-        // }
-        
-        // // 获取ticket
-        // $ticket_data = file_get_contents(__DIR__.'/ticket.txt');
-        // $time1 = 7200;
-        // if (!empty($ticket_data)) {
-        //     $ticket_data = json_decode($ticket_data, true);
-        //     $time1  = time() - $ticket_data['time'];
-        //     // $time1  = time() - session('time1');
-        // }
-        
-        // if ($time1 > 3600) {
+               
             $ticket_url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token={$token}&type=jsapi";
             $ticket_res = $this->https_request($ticket_url);
             $ticket_res = json_decode($ticket_res, true);
             $ticket = $ticket_res['ticket'];
-            // $data = array(
-            //     'time'    =>time(),
-            //     'ticket'  =>$ticket
-            // );
-            // $time1=time();
-            // session('ticket', $ticket);
-            // session('time', $time1);
-            // file_put_contents(__DIR__.'/ticket.txt', json_encode($data));
-            // if ($res) {
-            //     echo '更新 ticket 成功';
-            // }
-        // }else{
-        //     $ticket = $ticket_data['ticket'];
-        // }
+            
         // 进行sha1签名
         $timestamp = time();
         $nonceStr = $this->createNonceStr();
